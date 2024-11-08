@@ -175,7 +175,7 @@ pub fn get_hostfile_path<'a>() -> Result<&'a Path, String> {
                 let path_slice = unsafe { slice::from_raw_parts(ptr, wcslen(ptr)) };
                 let os_str = OsString::from_wide(path_slice);
                 unsafe { CoTaskMemFree(ptr.cast()) };
-                let mut pathbuf = PathBuf::from(&os_str);
+                let mut pathbuf: PathBuf = PathBuf::from(&os_str);
                 pathbuf.push("drivers\\etc\\hosts");
                 Ok(&Path::from(&pathbuf))
             }
