@@ -1,7 +1,7 @@
 use std::fs::File;
 use std::io::{BufRead, BufReader};
 use std::net::{AddrParseError, IpAddr};
-use std::path::Path;
+use std::path::{PathBuf, Path};
 use std::str::FromStr;
 
 /**
@@ -131,14 +131,14 @@ pub fn parse_file(path: &Path) -> Result<Vec<HostEntry>, String> {
 /// - `/etc/hosts` on Unix.
 /// - `C:\Windows\system32\drivers\etc\hosts` on Windows.
 pub fn parse_hostfile() -> Result<Vec<HostEntry>, String> {
-    parse_file(get_hostfile_path()?)
+    parse_file(&get_hostfile_path()?)
 }
 
 /// Get path to the system hostfile.
-pub fn get_hostfile_path<'a>() -> Result<&'a Path, String> {
+pub fn get_hostfile_path<'a>() -> Result<PathBuf, String> {
     #[cfg(not(windows))]
     {
-        Ok(&Path::new("/etc/hosts"))
+        Ok(PathBuf::from("/etc/hosts"))
     }
 
     #[cfg(windows)]
@@ -147,7 +147,6 @@ pub fn get_hostfile_path<'a>() -> Result<&'a Path, String> {
         // See https://crates.io/crates/home
         use std::ffi::OsString;
         use std::os::windows::ffi::OsStringExt;
-        use std::path::PathBuf;
         use std::ptr::null_mut;
         use std::slice;
         use windows_sys::Win32::{
@@ -177,7 +176,7 @@ pub fn get_hostfile_path<'a>() -> Result<&'a Path, String> {
                 unsafe { CoTaskMemFree(ptr.cast()) };
                 let mut pathbuf: PathBuf = PathBuf::from(&os_str);
                 pathbuf.push("drivers\\etc\\hosts");
-                Ok(&Path::from(&pathbuf))
+                Ok(pathbuf)
             }
             _ => {
                 // free any allocated memory even on failure (a null ptr is a no-op for `CoTaskMemFree`)
