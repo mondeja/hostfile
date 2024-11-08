@@ -147,6 +147,7 @@ pub fn get_hostfile_path<'a>() -> Result<&'a Path, String> {
         // See https://crates.io/crates/home
         use std::ffi::OsString;
         use std::os::windows::ffi::OsStringExt;
+        use std::path::PathBuf;
         use std::ptr::null_mut;
         use std::slice;
         use windows_sys::Win32::{
@@ -172,9 +173,11 @@ pub fn get_hostfile_path<'a>() -> Result<&'a Path, String> {
         match ret {
             S_OK => {
                 let path_slice = unsafe { slice::from_raw_parts(ptr, wcslen(ptr)) };
-                let os_str: OsString = OsString::from_wide(path_slice);
+                let os_str = OsString::from_wide(path_slice);
                 unsafe { CoTaskMemFree(ptr.cast()) };
-                Ok(Path::new(&os_str.into_string().unwrap()).join("drivers\\etc\\hosts"))
+                let mut pathbuf = PathBuf::from(&os_str);
+                pathbuf.push("drivers\\etc\\hosts");
+                Ok(&Path::from(pathbuf))
             }
             _ => {
                 // free any allocated memory even on failure (a null ptr is a no-op for `CoTaskMemFree`)
