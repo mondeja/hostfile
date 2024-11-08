@@ -135,7 +135,7 @@ pub fn parse_hostfile() -> Result<Vec<HostEntry>, String> {
 }
 
 /// Get path to the system hostfile.
-pub fn get_hostfile_path<'a>() -> Result<PathBuf, String> {
+pub fn get_hostfile_path() -> Result<PathBuf, String> {
     #[cfg(not(windows))]
     {
         Ok(PathBuf::from("/etc/hosts"))
@@ -174,7 +174,7 @@ pub fn get_hostfile_path<'a>() -> Result<PathBuf, String> {
                 let path_slice = unsafe { slice::from_raw_parts(ptr, wcslen(ptr)) };
                 let os_str = OsString::from_wide(path_slice);
                 unsafe { CoTaskMemFree(ptr.cast()) };
-                let mut pathbuf: PathBuf = PathBuf::from(&os_str);
+                let mut pathbuf = PathBuf::from(&os_str);
                 pathbuf.push("drivers\\etc\\hosts");
                 Ok(pathbuf)
             }
