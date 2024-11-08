@@ -138,7 +138,7 @@ pub fn parse_hostfile() -> Result<Vec<HostEntry>, String> {
 pub fn get_hostfile_path<'a>() -> Result<&'a Path, String> {
     #[cfg(not(windows))]
     {
-        Ok(Path::new("/etc/hosts"))
+        Ok(&Path::new("/etc/hosts"))
     }
 
     #[cfg(windows)]
@@ -177,7 +177,7 @@ pub fn get_hostfile_path<'a>() -> Result<&'a Path, String> {
                 unsafe { CoTaskMemFree(ptr.cast()) };
                 let mut pathbuf = PathBuf::from(&os_str);
                 pathbuf.push("drivers\\etc\\hosts");
-                Ok(&Path::from(pathbuf))
+                Ok(&Path::from(&pathbuf))
             }
             _ => {
                 // free any allocated memory even on failure (a null ptr is a no-op for `CoTaskMemFree`)
